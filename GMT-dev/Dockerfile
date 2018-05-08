@@ -51,8 +51,8 @@ RUN cd ./gmt5-dev/build && \
     make && make install
 #RUN apt-get install gmt-dcw gmt-gshhg
 
-RUN apt-get install -y ffmpeg
-RUN apt-get install -y graphicsmagick
+#RUN apt-get install -y ffmpeg
+#RUN apt-get install -y graphicsmagick
 
 ENV TINI_VERSION v0.8.4
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/bin/tini
