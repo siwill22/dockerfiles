@@ -27,7 +27,8 @@ COPY pygplates_2.0_amd64_bionic.deb pygplates_2.0_amd64_bionic.deb
 # use dpkg to install 
 RUN dpkg -i pygplates_2.0_amd64_bionic.deb 
 
-ENV PYTHONPATH ${PYTHONPATH}:/usr/lib:/usr/lib/pygplates/revision12/
+# note the revision number here may need changing if the version of pygplates is incremented
+ENV PYTHONPATH ${PYTHONPATH}:/usr/lib:/usr/lib/pygplates/revision17/
 
 
 
