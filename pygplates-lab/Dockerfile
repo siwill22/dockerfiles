@@ -2,7 +2,7 @@
 # Image for pygplates Jupyter server
 #
 
-FROM siwill22/pygplates16
+FROM siwill22/pygplates18
 
 #### Python dependencies
 # install all the python and ipython notebook requirements
@@ -12,7 +12,7 @@ RUN pip install --upgrade setuptools
 RUN pip install --ignore-installed jupyter
 RUN pip install jupyterlab
 #RUN pip install ipyparallel
-RUN apt-get install -y --no-install-recommends --fix-missing python-numpy python-scipy python-matplotlib python-pandas python-sympy python-nose
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing python-numpy python-scipy python-matplotlib python-pandas python-sympy python-nose
 RUN apt-get install -y python-mpltoolkits.basemap
 RUN pip install -U scikit-learn
 RUN pip install netcdf4
@@ -35,22 +35,22 @@ RUN apt-get install -y ghostscript build-essential cmake libnetcdf-dev libfftw3-
 RUN apt-get install -y gdal-bin
 # Note that, due to changing version numbers in the GMT 'top level' ftp with time, it is more
 # safe to specify a specific version in the legacy folder where we know the version number
-RUN wget ftp://ftp.soest.hawaii.edu/gmt/legacy/gmt-5.3.1-src.tar.xz && \
-    tar xf gmt-5.3.1-src.tar.xz
-RUN rm -fr /gmt-5.3.1/build && mkdir /gmt-5.3.1/build
+RUN wget ftp://ftp.soest.hawaii.edu/gmt/legacy/gmt-5.4.1-src.tar.xz && \
+    tar xf gmt-5.4.1-src.tar.xz
+RUN rm -fr /gmt-5.4.1/build && mkdir /gmt-5.4.1/build
 RUN wget ftp://ftp.soest.hawaii.edu/gmt/legacy/gshhg-gmt-2.3.5.tar.gz && \
-    mkdir /gmt-5.3.1/coast && \
-    mv gshhg-gmt-2.3.5.tar.gz /gmt-5.3.1/coast/gshhg-gmt-2.3.5.tar.gz 
-RUN cd /gmt-5.3.1/coast && tar xf gshhg-gmt-2.3.5.tar.gz
+    mkdir /gmt-5.4.1/coast && \
+    mv gshhg-gmt-2.3.5.tar.gz /gmt-5.4.1/coast/gshhg-gmt-2.3.5.tar.gz 
+RUN cd /gmt-5.4.1/coast && tar xf gshhg-gmt-2.3.5.tar.gz
 RUN wget ftp://ftp.soest.hawaii.edu/gmt/legacy/dcw-gmt-1.1.1.tar.gz && \
-    mkdir /gmt-5.3.1/dcw && \
-    mv dcw-gmt-1.1.1.tar.gz /gmt-5.3.1/dcw/dcw-gmt-1.1.1.tar.gz
-RUN cd /gmt-5.3.1/dcw && tar xf dcw-gmt-1.1.1.tar.gz
-RUN cd /gmt-5.3.1/build && \
+    mkdir /gmt-5.4.1/dcw && \
+    mv dcw-gmt-1.1.1.tar.gz /gmt-5.4.1/dcw/dcw-gmt-1.1.1.tar.gz
+RUN cd /gmt-5.4.1/dcw && tar xf dcw-gmt-1.1.1.tar.gz
+RUN cd /gmt-5.4.1/build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr \
-      -DGSHHG_PATH=/gmt-5.3.1/coast/gshhg-gmt-2.3.5 \
+      -DGSHHG_PATH=/gmt-5.4.1/coast/gshhg-gmt-2.3.5 \
       -DGMT_LIBDIR=lib \
-      -DDCW_ROOT=/gmt-5.3.1/dcw/dcw-gmt-1.1.1.tar \
+      -DDCW_ROOT=/gmt-5.4.1/dcw/dcw-gmt-1.1.1.tar \
       -DGMT_DATADIR=share/gmt \
       -DGMT_MANDIR=share/man \
       -DGMT_DOCDIR=share/doc/gmt \
@@ -105,7 +105,8 @@ ENV PYTHONPATH ${PYTHONPATH}:/gwstools:/workspace/PlateTectonicTools
 
 # Add the GPlates sample data
 RUN wget ftp://ftp.earthbyte.org/earthbyte/GPlates/SampleData_GPlates2.0/SampleData.zip
-RUN mkdir SampleData && mv SampleData.zip /workspace/SampleData.zip && unzip /workspace/SampleData.zip
+RUN mkdir /workspace/SampleData 
+RUN unzip SampleData.zip && mv /SampleData/* /workspace/SampleData
 
 # setup space for working in
 VOLUME /workspace/volume
