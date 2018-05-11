@@ -12,7 +12,7 @@ RUN pip install --upgrade setuptools
 RUN pip install --ignore-installed jupyter
 RUN pip install jupyterlab
 #RUN pip install ipyparallel
-RUN apt-get install -y python-numpy python-scipy python-matplotlib python-pandas python-sympy python-nose
+RUN apt-get install -y --no-install-recommends --fix-missing python-numpy python-scipy python-matplotlib python-pandas python-sympy python-nose
 RUN apt-get install -y python-mpltoolkits.basemap
 RUN pip install -U scikit-learn
 RUN pip install netcdf4
@@ -63,21 +63,34 @@ ENV TINI_VERSION v0.8.4
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/bin/tini
 RUN chmod +x /usr/local/bin/tini
 
+RUN pip install scikit-image
 RUN pip install requests
 RUN pip install geojson
 RUN pip install joblib
 RUN apt-get install -y gfortran
 RUN pip install litho1pt0
+RUN apt-get install -y python-tk
+RUN apt-get install -y unzip
+
+RUN pip install ipywidgets
+RUN jupyter serverextension enable --py jupyterlab
+RUN jupyter nbextension enable --py widgetsnbextension
+
 
 RUN mkdir /workspace
 
-COPY run.sh /build/
-RUN chmod +x /build/run.sh
+#COPY run.sh /build/
+#RUN chmod +x /build/run.sh
+
+#
+# set-up pygplates-related repositories
+#
+RUN pip install "git+https://github.com/EarthByte/pyBacktrack.git#egg=pybacktrack"
 
 RUN git clone https://github.com/GPlates/pygplates-tutorials.git /pygplates-tutorials
 RUN git clone https://github.com/siwill22/gwstools.git /gwstools
 RUN git clone https://github.com/siwill22/gws-examples.git /gws-examples
-
+RUN git clone https://github.com/EarthByte/PlateTectonicTools.git /PlateTectonicTools
 
 RUN mkdir /workspace/tutorials/
 RUN cp -av /pygplates-tutorials/* /workspace/tutorials/
@@ -85,14 +98,44 @@ RUN cp -av /pygplates-tutorials/* /workspace/tutorials/
 RUN mkdir /workspace/web-service-examples
 RUN cp -av /gws-examples/python/* /workspace/web-service-examples
 
-ENV PYTHONPATH ${PYTHONPATH}:/gwstools
+RUN mkdir /workspace/PlateTectonicTools
+RUN cp -av /PlateTectonicTools/* /workspace/PlateTectonicTools
+
+ENV PYTHONPATH ${PYTHONPATH}:/gwstools:/workspace/PlateTectonicTools
+
+# Add the GPlates sample data
+RUN wget ftp://ftp.earthbyte.org/earthbyte/GPlates/SampleData_GPlates2.0/SampleData.zip
+RUN mkdir SampleData && mv SampleData.zip /workspace/SampleData.zip && unzip /workspace/SampleData.zip
 
 # setup space for working in
 VOLUME /workspace/volume
 
+
+
+#
+# Section to handle user, get around the security token (adapted from Underworld dockerfiles)
+#
+# copy this file over so that no password is required
+# add default user jovyan and change permissions on NB_WORK
+ENV NB_USER jovyan
+RUN useradd -m -s /bin/bash -N jovyan
+
+# CHANGE USER
+USER $NB_USER
+
+COPY jupyter_notebook_config.json /home/$NB_USER/.jupyter/jupyter_notebook_config.json
+
+# setup symlink for terminal convenience
+ENV NB_WORK /workspace
+RUN ln -s $NB_WORK /home/$NB_USER/
+
+
+
 # launch notebook
 WORKDIR /workspace
 EXPOSE 8888
-ENTRYPOINT ["/usr/local/bin/tini", "--"]
+#ENTRYPOINT ["/usr/local/bin/tini", "--"]
 
-CMD /build/run.sh
+#CMD /build/run.sh
+#CMD ["jupyter", "notebook", " --no-browser", "--allow-root", "--ip=0.0.0.0", "--NotebookApp.iopub_data_rate_limit=1.0e10"]
+CMD ["jupyter", "lab", "--ip=*", "--port=8888", "--no-browser", "--allow-root"]
