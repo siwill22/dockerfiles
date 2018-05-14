@@ -12,7 +12,8 @@ RUN pip install --upgrade setuptools
 RUN pip install --ignore-installed jupyter
 RUN pip install jupyterlab
 #RUN pip install ipyparallel
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing python-numpy python-scipy python-matplotlib python-pandas python-sympy python-nose
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing python-numpy python-scipy python-pandas python-sympy python-nose
+RUN pip install matplotlib
 RUN apt-get install -y python-mpltoolkits.basemap
 RUN pip install -U scikit-learn
 RUN pip install netcdf4
