@@ -15,6 +15,9 @@ RUN apt-get install -y wget
 RUN apt-get install -y automake autoconf libtool
 RUN apt-get install -y xsltproc
 
+RUN apt-get install -y bc
+RUN apt-get install -y python
+
 RUN mkdir -p /netcdf
 ADD netcdf-4.0 /netcdf
 RUN cd /netcdf && ./configure && make && make install
