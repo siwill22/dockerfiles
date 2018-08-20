@@ -1,0 +1,10 @@
+name: stagpy
+dependencies:
+  - python=3.6
+  - numpy
+  - matplotlib
+  - scipy
+  - pandas
+  - ipykernel
+  - pip:
+    - stagpy
